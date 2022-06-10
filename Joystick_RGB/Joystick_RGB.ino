@@ -22,79 +22,82 @@ void setup() {
 }
 
 // define variables
-float greenValue; 
+float xvalue = 0;
+float yvalue = 0;
+float theta;
+float radius; 
+float bluetheta = theta;
+float redtheta = theta;
+float greenValue;
+float blueValue; 
 float redValue;
-float blueValue;
-int xvalue = 0;
-int yvalue = 0;
-float redColor;
-float blueColor;
+int Switch;
 
 void loop() {
-  xvalue = analogRead(Y_pin)-506;
-  yvalue = analogRead(X_pin)-506;
-  float color = abs((float)atan((float)yvalue/xvalue));  
-  if(xvalue<0&&yvalue<0){
-    color = color + 3.14159265358979;
+  xvalue = analogRead(Y_pin)-505;
+  yvalue = analogRead(X_pin)-507;
+  theta = atan(yvalue/xvalue);
+  radius = (sqrt(xvalue*xvalue+yvalue*yvalue))/(sqrt(505.5*505.5+507*507));
+  if (radius >= 1) {
+    radius = 1;
   }
-  else if(xvalue>0&&yvalue<0){
-    color = color + 4.71238898038;
-    }
-  else if(xvalue<0&&yvalue>0){
-    color = color + 1.57079632679;
+  //add if statement here to account for 0 and 1 for xvalue at theta = 0
+  if (xvalue < 0 && yvalue >= 0) {
+    theta = theta + 3.14159265359;
   }
-  greenValue =((abs(3.14159265359-(float)color))/3.14159265359)*255;
-  if((color - 2.09439510239)<0){
-    blueColor = color + 6.28318530718;
+  else if (xvalue < 0 && yvalue < 0) {
+    theta = theta - 3.14159265359;
   }
-  blueValue = ((abs(3.14159265359-(blueColor-2.09439510239)))/3.14159265359)*255;
-  if((color - 4.18879020479)<0){
-    redColor = color + 6.28318530718;
-  }
-  redValue = ((abs(3.14159265359-(redColor-4.18879020479)))/3.14159265359)*255;
-  if(greenValue <= 0){
+  greenValue = (1-abs(theta/2.09439510239))*255*radius;
+  if (greenValue <= 0) {
     greenValue = 0;
   }
-  /*if(2.09439510239<color<4.18879020479){
-    greenValue = 0;
+  if (theta < 0) {
+    theta = theta + 6.28318530718;
   }
-  if(2.09439510239<redColor<4.18879020479){
-    redValue = 0;
-    }
-  if(2.09439510239<blueColor<4.18879020479){
+  bluetheta = theta - 2.09439510239;
+  blueValue = (1-abs(bluetheta/2.09439510239))*255*radius;
+  if (blueValue <= 0) {
     blueValue = 0;
-    }  */
-  if(redValue >= 255){
+  }
+  if (bluetheta < 0) {
+    bluetheta = bluetheta + 6.28318530718;
+  }
+  redtheta = bluetheta - 2.09439510239;
+  redValue = (1-abs(redtheta/2.09439510239))*255*radius;
+  if (redValue <= 0) {
+    redValue = 0;
+  }
+  Switch = digitalRead(SW_pin);
+  if (Switch == 0){
     redValue = 255;
-  }
-  if(redValue <= 0){
-    redValue = 0;
-  }
-  if(blueValue >= 255){
     blueValue = 255;
+    greenValue = 255;
   }
-  if(blueValue <= 0){
-    blueValue = 0;
-  }
+  //Write values to LED
   analogWrite(RED, redValue);
   analogWrite(GREEN, greenValue);
   analogWrite(BLUE, blueValue); 
-  Serial.print("Switch:  ");
-  Serial.print(digitalRead(SW_pin));
-  Serial.print("\t");
+  //Print to Serial Monitor
   Serial.print("X-axis: ");
   Serial.print(xvalue);
   Serial.print("\t");
   Serial.print("Y-axis: ");
   Serial.print(yvalue);
   Serial.print("\t");
-  Serial.print(redValue);
+  Serial.print("Theta: ");
+  Serial.print(theta);
   Serial.print("\t");
-  Serial.print(blueValue);
-  Serial.print("\t");
+  Serial.print("R: ");
+  Serial.print(radius);
+  Serial.print("\t\t");
+  Serial.print("Green Value:");
   Serial.print(greenValue);
-  Serial.print("\t");  
-  Serial.print("Color:");
-  Serial.print(color);
+  Serial.print("\t\t");
+  Serial.print("Blue Value:");
+  Serial.print(blueValue);
+  Serial.print("\t\t");
+  Serial.print("Red Value:");
+  Serial.print(redValue);
   Serial.print("\n\n");
 }
